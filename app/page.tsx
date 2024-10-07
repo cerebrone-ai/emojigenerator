@@ -3,11 +3,20 @@ import { useState } from 'react';
 import EmojiGenerator from "@/components/ui/emoji-generator";
 import EmojiGrid from "@/components/ui/emoji-grid";
 
-export default function Home() {
-  const [refreshKey, setRefreshKey] = useState(0);
+type Emoji = {
+  id: string;
+  image_url: string;
+  prompt: string;
+  likes: number;
+  created_at: string;
+};
 
-  const handleEmojiGenerated = () => {
-    setRefreshKey(prevKey => prevKey + 1);
+export default function Home() {
+  const [newEmoji, setNewEmoji] = useState<Emoji | undefined>(undefined);
+
+  const handleEmojiGenerated = (emoji: Emoji) => {
+    console.log('New emoji generated:', emoji);
+    setNewEmoji(emoji);
   };
 
   return (
@@ -15,7 +24,7 @@ export default function Home() {
       <main className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-center">Emoji Maker</h1>
         <EmojiGenerator onEmojiGenerated={handleEmojiGenerated} />
-        <EmojiGrid key={refreshKey} />
+        <EmojiGrid newEmoji={newEmoji} />
       </main>
     </div>
   );

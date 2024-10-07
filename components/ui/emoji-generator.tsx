@@ -6,7 +6,15 @@ import { Button } from './button';
 import Image from 'next/image';
 import { supabase } from '../../lib/supabase';
 
-export default function EmojiGenerator({ onEmojiGenerated }: { onEmojiGenerated: () => void }) {
+type Emoji = {
+  id: string;
+  image_url: string;
+  prompt: string;
+  likes: number;
+  created_at: string;
+};
+
+export default function EmojiGenerator({ onEmojiGenerated }: { onEmojiGenerated: (emoji: Emoji) => void }) {
   const [prompt, setPrompt] = useState('');
   const [generatedEmoji, setGeneratedEmoji] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -30,13 +38,15 @@ export default function EmojiGenerator({ onEmojiGenerated }: { onEmojiGenerated:
         // Save the generated emoji to Supabase
         const { data: insertData, error: supabaseError } = await supabase
           .from('emojis')
-          .insert({ image_url: data.imageUrl, prompt: prompt });
+          .insert({ image_url: data.imageUrl, prompt: prompt })
+          .select();
         
         if (supabaseError) {
           console.error('Error saving emoji to Supabase:', supabaseError);
           setError('Error saving emoji. Please try again.');
-        } else {
-          onEmojiGenerated(); // Call this function to refresh the EmojiGrid
+        } else if (insertData && insertData.length > 0) {
+          console.log('New emoji saved:', insertData[0]);
+          onEmojiGenerated(insertData[0] as Emoji);
         }
       } else {
         throw new Error(data.error || 'Failed to generate emoji');

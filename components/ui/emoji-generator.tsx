@@ -12,6 +12,7 @@ type Emoji = {
   prompt: string;
   likes: number;
   created_at: string;
+  creator_user_id: string;
 };
 
 export default function EmojiGenerator({ onEmojiGenerated }: { onEmojiGenerated: (emoji: Emoji) => void }) {

@@ -1,9 +1,9 @@
 'use client';
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Download, Heart } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { useUser } from "@clerk/nextjs";
+import { User } from '@supabase/supabase-js'; // Change this line
 
 type Emoji = {
   id: string;
@@ -16,22 +16,33 @@ type Emoji = {
 export default function EmojiGrid({ newEmoji }: { newEmoji?: Emoji | null }) {
   const [emojis, setEmojis] = useState<Emoji[]>([]);
   const [likedEmojis, setLikedEmojis] = useState<Set<string>>(new Set());
-  const { user } = useUser();
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    fetchEmojis();
-    if (user) {
-      fetchLikedEmojis();
-    }
-  }, [user]);
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
 
-  useEffect(() => {
-    if (newEmoji) {
-      setEmojis(prevEmojis => [newEmoji, ...prevEmojis]);
-    }
-  }, [newEmoji]);
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
-  const fetchEmojis = async () => {
+  const fetchLikedEmojis = useCallback(async () => {
+    if (!user?.id) return;
+    const { data, error } = await supabase
+      .from('likes')
+      .select('emoji_id')
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error fetching liked emojis:', error);
+    } else {
+      setLikedEmojis(new Set(data.map(like => like.emoji_id)));
+    }
+  }, [user?.id]);
+
+  const fetchEmojis = useCallback(async () => {
     const { data, error } = await supabase
       .from('emojis')
       .select('*')
@@ -42,20 +53,20 @@ export default function EmojiGrid({ newEmoji }: { newEmoji?: Emoji | null }) {
     } else {
       setEmojis(data || []);
     }
-  };
+  }, []);
 
-  const fetchLikedEmojis = async () => {
-    const { data, error } = await supabase
-      .from('likes')
-      .select('emoji_id')
-      .eq('user_id', user?.id);
-
-    if (error) {
-      console.error('Error fetching liked emojis:', error);
-    } else {
-      setLikedEmojis(new Set(data.map(like => like.emoji_id)));
+  useEffect(() => {
+    fetchEmojis();
+    if (user) {
+      fetchLikedEmojis();
     }
-  };
+  }, [user, fetchLikedEmojis, fetchEmojis]);
+
+  useEffect(() => {
+    if (newEmoji) {
+      setEmojis(prevEmojis => [newEmoji, ...prevEmojis]);
+    }
+  }, [newEmoji]);
 
   const handleLike = async (id: string) => {
     if (!user) {
@@ -123,10 +134,16 @@ export default function EmojiGrid({ newEmoji }: { newEmoji?: Emoji | null }) {
           {emojis.map((emoji) => (
             <div key={emoji.id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="relative aspect-square">
-                <img
+                <Image
                   src={emoji.image_url}
                   alt={emoji.prompt}
+                  width={100}
+                  height={100}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('Error loading image:', emoji.image_url);
+                    e.currentTarget.src = '/placeholder.png'; // Replace with a placeholder image
+                  }}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-opacity flex items-center justify-center opacity-0 hover:opacity-100">
                   <button

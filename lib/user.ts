@@ -1,39 +1,31 @@
-import { supabase } from './supabase'
+import { supabase } from './supabase';
 
 export async function createOrGetUserProfile(userId: string) {
-  // Check if the user already exists
-  const { data: existingUser, error: fetchError } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('user_id', userId)
-    .single()
+    .single();
 
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    console.error('Error fetching user:', fetchError)
-    throw fetchError
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching user profile:', error);
+    return null;
   }
 
-  if (existingUser) {
-    return existingUser
+  if (data) {
+    return data;
   }
 
-  // If the user doesn't exist, create a new profile
-  const { data: newUser, error: insertError } = await supabase
+  const { data: newProfile, error: insertError } = await supabase
     .from('profiles')
-    .insert([
-      {
-        user_id: userId,
-        credits: 3,
-        tier: 'free'
-      }
-    ])
+    .insert({ user_id: userId, credits: 3, tier: 'free' })
     .select()
-    .single()
+    .single();
 
   if (insertError) {
-    console.error('Error creating user:', insertError)
-    throw insertError
+    console.error('Error creating user profile:', insertError);
+    return null;
   }
 
-  return newUser
+  return newProfile;
 }

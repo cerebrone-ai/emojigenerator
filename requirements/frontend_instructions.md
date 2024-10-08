@@ -39,8 +39,8 @@ const output = await replicate.run(
 console.log(output);
 
 # current file structure
-EMOJIAPP
-└── my-app
+EMOJIMAKER-APP
+└── emojigenerator
     ├── app
     │   ├── fonts
     │   │   ├── GeistMonoVF.woff

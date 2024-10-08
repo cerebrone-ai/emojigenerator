@@ -1,40 +1,39 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import Header from "@/components/ui/headers";
-import ClientLayout from "@/app/client-layout";
+import './globals.css'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import { Header } from '@/components/ui/headers'
+import ClientLayout from './client-layout'
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "Emoji Maker",
-  description: "Create custom emojis with AI",
-};
+  title: 'Emoji Maker',
+  description: 'Generate custom emojis with AI',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Header />
-          <ClientLayout>{children}</ClientLayout>
-        </body>
-      </html>
-    </ClerkProvider>
-  );
+    <html lang="en">
+      <body className={inter.className}>
+        <ClientLayout>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">
+              {children}
+            </main>
+            <footer className="bg-gray-100 py-4">
+              <div className="container mx-auto px-4 text-center text-gray-600">
+                © 2023 Emoji Maker. All rights reserved.
+              </div>
+            </footer>
+          </div>
+        </ClientLayout>
+      </body>
+    </html>
+  )
 }
 

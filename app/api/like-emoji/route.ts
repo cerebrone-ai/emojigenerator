@@ -1,25 +1,26 @@
-import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse, NextRequest } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = getAuth(request);
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { user } } = await supabase.auth.getUser();
     
-    if (!userId) {
+    if (!user) {
       console.error('Unauthorized: No user ID found');
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const { emojiId, action } = await request.json();
-    console.log(`Received request: emojiId=${emojiId}, action=${action}, userId=${userId}`);
+    console.log(`Received request: emojiId=${emojiId}, action=${action}, userId=${user.id}`);
 
     if (action === 'like') {
       console.log('Attempting to like emoji');
       const { data: existingLike, error: checkError } = await supabase
         .from('likes')
         .select()
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .eq('emoji_id', emojiId)
         .single();
 
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
         console.log('Inserting new like');
         const { error: insertError } = await supabase
           .from('likes')
-          .insert({ user_id: userId, emoji_id: emojiId });
+          .insert({ user_id: user.id, emoji_id: emojiId });
 
         if (insertError) {
           console.error('Error inserting like:', insertError);
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
       const { error: deleteError } = await supabase
         .from('likes')
         .delete()
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .eq('emoji_id', emojiId);
 
       if (deleteError) {

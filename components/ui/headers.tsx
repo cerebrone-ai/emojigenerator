@@ -1,35 +1,46 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
+import { Button } from './button';
+import { useRouter } from 'next/navigation';
+import { User } from '@supabase/supabase-js';
 
-export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+export function Header() {
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
   };
 
   return (
-    <div className="flex items-center space-x-4 justify-end mt-4">
-      <SignedOut>
-        <SignInButton />
-      </SignedOut>
-      <SignedIn>
-        <UserButton />
-      </SignedIn>
-      <div className="md:hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </Button>
+    <header className="bg-white shadow-md">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="text-2xl font-bold text-gray-800">
+          Emoji Maker
+        </Link>
+        <nav>
+          {user && (
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-600">Welcome, {user.email}</span>
+              <Button onClick={handleSignOut} variant="outline">Sign Out</Button>
+            </div>
+          )}
+        </nav>
       </div>
-    </div>
+    </header>
   );
 }

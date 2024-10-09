@@ -6,13 +6,23 @@
 trigger:
   branches:
     include:
-      - dikshita  # Ensure that the branch name is correct and matches your repository
+      - dikshita  # Change to your branch name
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  - script: echo "Hello World"
-    displayName: 'Run a simple script'
+  # Step 1: Set up Node.js
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '16.x'  # Specify the Node.js version you need
 
+  # Step 2: Install dependencies and build the React app
+  - script: |
+      npm install
+      npm run build
+    displayName: 'Install and Build React App'
+
+  
+  
 

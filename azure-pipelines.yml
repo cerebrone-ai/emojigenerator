@@ -4,7 +4,9 @@
 # https://aka.ms/yaml
 
 trigger:
-- features/dikshita
+  branches:
+    include:
+      - dikshita  # Ensure that the branch name is correct and matches your repository
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -12,4 +14,5 @@ pool:
 steps:
   - script: echo "Hello World"
     displayName: 'Run a simple script'
+
 

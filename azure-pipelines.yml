@@ -15,7 +15,7 @@ steps:
   # Step 1: Set up Node.js
   - task: NodeTool@0
     inputs:
-      versionSpec: '16.x'  # Specify the Node.js version you need
+      versionSpec: '18.x'  # Specify the Node.js version you need
 
   # Step 2: Install dependencies and build the React app
   - script: |

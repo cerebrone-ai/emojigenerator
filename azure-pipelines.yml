@@ -35,14 +35,14 @@ steps:
 # Step 4: Log in to Docker Hub
 - task: Docker@2
   inputs:
-    containerRegistry: 'DockerHubServiceConnection'
+    containerRegistry: 'DockerHubConnection'
     command: 'login'
 
 # Step 5: Build Docker image
 - task: Docker@2
   inputs:
-    containerRegistry: 'DockerHubServiceConnection'
-    repository: 'your-dockerhub-username/emoji-maker'
+    containerRegistry: 'DockerHubConnection'
+    repository: 'disidesh/emoji-maker'
     command: 'buildAndPush'
     Dockerfile: 'emojigenerator/Dockerfile'
     tags: |

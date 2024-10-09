@@ -3,11 +3,10 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-# azure-pipelines.yml
 trigger:
   branches:
     include:
-      - features/dikshita  # Change this to your branch if necessary
+      - features/dikshita
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -19,33 +18,11 @@ steps:
 # Step 2: Set up Node.js
 - task: NodeTool@0
   inputs:
-    versionSpec: '16.x'  # Use the Node.js version you need
+    versionSpec: '16.x'
 
-# Step 3: Install dependencies and build the React app
+# Step 3: Echo test step
 - script: |
-    npm install
-    npm run build
-  displayName: 'Install and Build'
-  # env:
-    #NEXT_PUBLIC_SUPABASE_URL: $(NEXT_PUBLIC_SUPABASE_URL)
-    #NEXT_PUBLIC_SUPABASE_ANON_KEY: $(NEXT_PUBLIC_SUPABASE_ANON_KEY)
-    #SUPABASE_SERVICE_ROLE_KEY: $(SUPABASE_SERVICE_ROLE_KEY)
-    #REPLICATE_API_TOKEN: $(REPLICATE_API_TOKEN)
+    echo "Pipeline is working"
+  displayName: 'Test pipeline'
 
-# Step 4: Log in to Docker Hub
-- task: Docker@2
-  inputs:
-    containerRegistry: 'DockerHubConnection'
-    command: 'login'
-
-# Step 5: Build Docker image
-- task: Docker@2
-  inputs:
-    containerRegistry: 'DockerHubConnection'
-    repository: 'disidesh/emoji-maker'
-    command: 'buildAndPush'
-    Dockerfile: 'emojigenerator/Dockerfile'
-    tags: |
-      latest
-      $(Build.BuildId)
 

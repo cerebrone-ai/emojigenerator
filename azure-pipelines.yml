@@ -6,28 +6,34 @@
 trigger:
   branches:
     include:
-      - dikshita  # Change to your branch name
+      - dikshita  # Or your working branch
 
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  NEXT_PUBLIC_SUPABASE_URL: $(NEXT_PUBLIC_SUPABASE_URL)
+  SUPABASE_SERVICE_ROLE_KEY: $(SUPABASE_SERVICE_ROLE_KEY)
+  REPLICATE_API_TOKEN: $(REPLICATE_API_TOKEN)
+
 steps:
-  # Step 1: Set up Node.js
+ # Step 2: Set up Node.js version
   - task: NodeTool@0
     inputs:
-      versionSpec: '18.x'  # Specify the Node.js version you need
+      versionSpec: '18.x'
+      checkLatest: true
 
-  # Step 2: Install dependencies and build the React app
+  # Step 3: Install Dependencies
   - script: |
       npm install
+    displayName: 'Install Dependencies'
+
+  # Step 4: Build Next.js App with Environment Variables
+  - script: |
+      NEXT_PUBLIC_SUPABASE_URL=$(NEXT_PUBLIC_SUPABASE_URL) \
+      SUPABASE_SERVICE_ROLE_KEY=$(SUPABASE_SERVICE_ROLE_KEY) \
+      REPLICATE_API_TOKEN=$(REPLICATE_API_TOKEN) \
       npm run build
-    displayName: 'Install and Build React App'
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: $(NEXT_PUBLIC_SUPABASE_URL)
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: $(NEXT_PUBLIC_SUPABASE_ANON_KEY)
-      SUPABASE_SERVICE_ROLE_KEY: $(SUPABASE_SERVICE_ROLE_KEY)
-      REPLICATE_API_TOKEN: $(REPLICATE_API_TOKEN)
-
+    displayName: 'Build Application'
   
   
-

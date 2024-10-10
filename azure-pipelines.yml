@@ -3,6 +3,11 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
 trigger:
   branches:
     include:
@@ -17,7 +22,7 @@ variables:
   REPLICATE_API_TOKEN: $(REPLICATE_API_TOKEN)
 
 steps:
- # Step 2: Set up Node.js version
+  # Step 2: Set up Node.js version
   - task: NodeTool@0
     inputs:
       versionSpec: '18.x'
@@ -30,10 +35,8 @@ steps:
 
   # Step 4: Build Next.js App with Environment Variables
   - script: |
-      NEXT_PUBLIC_SUPABASE_URL=$(NEXT_PUBLIC_SUPABASE_URL) \
-      SUPABASE_SERVICE_ROLE_KEY=$(SUPABASE_SERVICE_ROLE_KEY) \
-      REPLICATE_API_TOKEN=$(REPLICATE_API_TOKEN) \
+      export NEXT_PUBLIC_SUPABASE_URL=$(NEXT_PUBLIC_SUPABASE_URL)
+      export SUPABASE_SERVICE_ROLE_KEY=$(SUPABASE_SERVICE_ROLE_KEY)
+      export REPLICATE_API_TOKEN=$(REPLICATE_API_TOKEN)
       npm run build
     displayName: 'Build Application'
-  
-  

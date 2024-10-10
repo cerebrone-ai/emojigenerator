@@ -33,3 +33,22 @@ steps:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: $(NEXT_PUBLIC_SUPABASE_ANON_KEY)
       SUPABASE_SERVICE_ROLE_KEY: $(SUPABASE_SERVICE_ROLE_KEY)
       REPLICATE_API_TOKEN: $(REPLICATE_API_TOKEN)
+
+  # Step 4: Log in to Docker Hub
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'DockerHubConnection'  # Replace with your Docker Hub service connection name
+      command: 'login'
+
+  # Step 5: Build and Push Docker image to Docker Hub
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'DockerHubConnection'
+      repository: 'disidesh/emoji-maker'  # Replace with your Docker Hub username and repository name
+      command: 'buildAndPush'
+      Dockerfile: 'emojigenerator/Dockerfile'  # Path to your Dockerfile
+      tags: |
+        latest
+        $(Build.BuildId)
+
+

@@ -46,7 +46,7 @@ steps:
       containerRegistry: 'DockerHubConnection'
       repository: 'disidesh/emoji-maker'  # Replace with your Docker Hub username and repository name
       command: 'buildAndPush'
-      Dockerfile: 'emojigenerator/Dockerfile'  # Path to your Dockerfile
+      Dockerfile: 'Dockerfile'  # Path to your Dockerfile
       tags: |
         latest
         $(Build.BuildId)
